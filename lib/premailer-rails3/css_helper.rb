@@ -1,3 +1,5 @@
+require('open-uri')
+
 module PremailerRails
   module CSSHelper
     extend self
@@ -39,7 +41,12 @@ module PremailerRails
             if asset = Rails.application.assets.find_asset(file)
               asset.to_s
             else
-              raise "Couldn't find asset #{file} for premailer-rails3."
+              url = [
+                Rails.configuration.action_controller.asset_host,
+                Rails.configuration.assets.prefix.sub(/^\//, ''),
+                Rails.configuration.assets.digests[file]
+              ].join('/')
+              Kernel.open(url).read
             end
           else
             file = path == :default ? '/stylesheets/email.css' : path
